@@ -39,9 +39,15 @@ class GoCommand extends Command
     public function handle()
     {
 
-        $user = User::find(3);
+        $post = Post::factory()->create();
+        $post = Post::first();
+//        Log::channel('crud')->info("Post created: ID {$post->id}");
 
-        dd($user->hasRole('reader'));
+//        Log::channel('posts')->info('Post created for id:{id}', ['id' => $post->id]);
+
+//        $user = User::find(3);
+//
+//        dd($user->hasRole('reader'));
 
 //        $post = Post::first();
 //

@@ -10,16 +10,21 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 Route::post('login', [AuthController::class, 'login']);
+Route::post('posts/process', [PostController::class, 'testProcessPost']);
+
+
 Route::group(['middleware' => 'jwt.auth'], function () {
     Route::post('logout', [AuthController::class, 'logout']);
     Route::post('refresh', [AuthController::class, 'refresh']);
     Route::post('me', [AuthController::class, 'me']);
+    Route::apiResource('posts', PostController::class);
+
 });
 
 
 Route::group(['middleware' => ['jwt.auth', IsAdminMiddleware::class]], function () {
 
-    Route::apiResource('posts', PostController::class);
+
 
 });
 

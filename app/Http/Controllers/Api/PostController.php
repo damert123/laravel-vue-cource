@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Exceptions\PostException;
 use App\Http\Controllers\Controller;
 use App\Http\Filters\PostFilter;
 use App\Http\Requests\Api\Post\IndexRequest;
@@ -17,6 +18,24 @@ use Illuminate\Http\Response;
 
 class PostController extends Controller
 {
+
+//    protected $postService;
+//
+//    public function __construct(PostService $postService)
+//    {
+//        $this->postService = $postService;
+//    }
+
+    public function testProcessPost()
+    {
+        try {
+            PostService::processPost();
+            return response()->json(['message' => 'Post processing complete'], 200);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
     public function index(IndexRequest $request)
     {
         $data = $request->validated();
@@ -55,6 +74,26 @@ class PostController extends Controller
         return response([
             'message' => 'Post deleted successfully'
         ], Response::HTTP_OK);
+
+    }
+
+
+
+
+    public function process()
+    {
+        $title = 'Animi labore qui assumenda.';
+
+        $post = Post::firstOrCreate([
+            'title' => $title
+        ],[
+            'profile_id' => 1,
+            'category_id' => 1,
+        ]);
+
+
+        PostException::checkIfPostExists($post);
+
 
     }
 }

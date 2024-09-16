@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Http\Filters\PostFilter;
 use App\Traits\HasLogsEvent;
+use App\Traits\HasLogsEventToFile;
 use App\Traits\Models\Traits\HasFilter;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -15,21 +16,21 @@ class Post extends Model
 {
     use HasFactory;
     use SoftDeletes;
-    use HasLogsEvent;
+    use HasLogsEventToFile;
     use HasFilter;
 
     protected $table = 'posts';
 
-    protected static function booted()
-    {
-
-
-        static::created(function (Model $model) {
-
-            \Illuminate\Support\Facades\Log::info('Custom logic for Post creation: ' . $model->id);
-        });
-
-    }
+//    protected static function booted()
+//    {
+//
+//
+//        static::created(function (Model $model) {
+//
+//            \Illuminate\Support\Facades\Log::info('Custom logic for Post creation: ' . $model->id);
+//        });
+//
+//    }
 
 
     public function tags()

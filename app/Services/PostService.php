@@ -2,10 +2,13 @@
 
 namespace App\Services;
 
+use App\Exceptions\CustomException;
 use App\Models\Post;
 
 class PostService
 {
+
+
 
     public static function create(array $data): Post
     {
@@ -22,6 +25,34 @@ class PostService
     {
         $post->delete();
 
+    }
+
+    public static function processPost()
+    {
+        try {
+            $post = Post::updateOrCreate(
+                ['title' => 'Some title fsdfsdf'],
+                ['content' => 'Some content',
+                    'profile_id' => 1,
+                    'category_id' => 1],
+            );
+            throw new CustomException($post, 'updateOrCreate', 'Post operation complete');
+        } catch (CustomException $e) {
+            $e->report();
+        }
+
+        try {
+            $post = Post::firstOrCreate(
+                ['title' => 'Another title'],
+                ['content' => 'Another content',
+                    'profile_id' => 1,
+                    'category_id' => 1],
+
+            );
+            throw new CustomException($post, 'firstOrCreate', 'Post operation complete');
+        } catch (CustomException $e) {
+            $e->report();
+        }
     }
 
 }

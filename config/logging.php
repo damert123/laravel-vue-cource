@@ -1,5 +1,6 @@
 <?php
 
+use App\LogFormatter\CrudLogFormatter;
 use Monolog\Handler\NullHandler;
 use Monolog\Handler\StreamHandler;
 use Monolog\Handler\SyslogUdpHandler;
@@ -126,6 +127,13 @@ return [
         'emergency' => [
             'path' => storage_path('logs/laravel.log'),
         ],
+
+        'posts' => [
+            'driver' => 'single',
+            'path' => storage_path('logs/posts.log'),
+            'tap' => [CrudLogFormatter::class],
+            'replace_placeholders' => true,
+        ]
 
     ],
 

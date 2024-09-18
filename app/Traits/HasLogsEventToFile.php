@@ -13,30 +13,24 @@ trait HasLogsEventToFile
     public static function bootHasLogsEventToFile()
     {
         static::created(function (Model $model) {
-            self::logToFile('created', $model);
+            self::logToDynamicFile('created', $model);
 
         });
 
         static::updated(function (Model $model) {
-            self::logToFile('updated', $model);
+            self::logToDynamicFile('updated', $model);
         });
 
         static::deleted(function (Model $model) {
-            self::logToFile('deleted', $model);
+            self::logToDynamicFile('deleted', $model);
 
         });
 
         static::retrieved(function (Model $model) {
-            self::logToFile('retrieved', $model);
+            self::logToDynamicFile('retrieved', $model);
         });
     }
 
-
-    public static function logToFile($event, Model $model)
-    {
-        self::logToDynamicFile($event, $model);
-
-    }
 
 
     public static function logToDynamicFile($event, Model $model)
@@ -53,3 +47,14 @@ trait HasLogsEventToFile
         Log::channel('crud')->info("$event event for model " . get_class($model) . " with ID: {$model->id}");
     }
 }
+
+
+
+
+
+
+//public static function logToFile($event, Model $model)
+//{
+//    self::logToDynamicFile($event, $model);
+//
+//}

@@ -40,7 +40,7 @@ class GoCommand extends Command
     {
 
         $post = Post::factory()->create();
-        $post = Post::first();
+//        $post = Post::first();
 //        Log::channel('crud')->info("Post created: ID {$post->id}");
 
 //        Log::channel('posts')->info('Post created for id:{id}', ['id' => $post->id]);

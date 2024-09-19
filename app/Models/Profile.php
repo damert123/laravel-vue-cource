@@ -12,7 +12,6 @@ class Profile extends Model
 {
     use HasFactory;
     use SoftDeletes;
-    use HasLogsEvent;
     use HasFilter;
 
     public function user()

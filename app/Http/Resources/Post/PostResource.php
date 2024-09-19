@@ -19,14 +19,17 @@ class PostResource extends JsonResource
             'title' => $this->title,
             'content' => $this->content,
             'published_at' => $this->published_at,
-            'profile_id' => $this->profile_id,
-            'category_id' => $this->category_id,
+            'profile_id' => $this->profile['login'],
+            'category_id' => $this->category['title'],
             'image_path' => $this->image_path,
+            'date' => $this->created_at->diffForHumans(),
             'status' => $this->status,
             'views' => $this->views,
-            'likes' => PostLikeResource::collection($this->likeable),
-            'comments' => CommentResource::collection($this->comments),
-            'tag' => TagResource::collection($this->tags),
+            'like_count' => $this->likeable->count(),
+            'comments_count' => $this->comments->count()
+//            'likes' => PostLikeResource::collection($this->likeable),
+//            'comments' => CommentResource::collection($this->comments),
+//            'tag' => TagResource::collection($this->tags),
 
 
 

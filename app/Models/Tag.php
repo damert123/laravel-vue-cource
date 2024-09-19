@@ -11,7 +11,6 @@ class Tag extends Model
 {
     use HasFactory;
     use SoftDeletes;
-    use HasLogsEvent;
 
     public function posts()
     {

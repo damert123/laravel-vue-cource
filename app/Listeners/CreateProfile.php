@@ -32,8 +32,6 @@ class CreateProfile
             'about' => fake()->text(50),
             'avatar_path' => fake()->imageUrl(),
             'login' => fake()->unique()->userName(),
-
-
             'user_id' => $event->user->id,
         ]);
     }

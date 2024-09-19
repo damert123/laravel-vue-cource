@@ -12,7 +12,6 @@ class Comment extends Model
 {
     use HasFactory;
     use SoftDeletes;
-    use HasLogsEvent;
     use HasFilter;
 
     public function profile()

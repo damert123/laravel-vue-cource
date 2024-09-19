@@ -1,11 +1,24 @@
 <script>
+
+import AuthLayout from "@/Layouts/AuthLayout.vue";
+
 export default {
-    name: "Index"
+    name: "Index",
+    layout: AuthLayout,
+
+
+
+
 }
 </script>
 
 <template>
-111111111111111111111111
+
+    <div class="flex justify-center">
+        <h1 class="text-2xl mt-12 font-bold">Welcome to the Homepage !</h1>
+    </div>
+
+
 </template>
 
 <style scoped>

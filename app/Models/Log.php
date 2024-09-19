@@ -12,8 +12,8 @@ class Log extends Model
     protected $table = 'logs';
 
 
-    protected $casts = [
-        'old_values' => 'array',
-        'new_values' => 'array',
-    ];
+//    protected $casts = [
+//        'old_values' => 'array',
+//        'new_values' => 'array',
+//    ];
 }

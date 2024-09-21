@@ -15,7 +15,7 @@
         @vite(['resources/js/app.js', "resources/js/Pages/{$page['component']}.vue"])
         @inertiaHead
     </head>
-    <body class="font-sans antialiased">
+    <body class="font-sans antialiased h-screen bg-gradient-to-r from-gradientStart via-gradientMid1 via-gradientMid2 to-gradientEnd">
 
         @inertia
     </body>

@@ -15,6 +15,13 @@ export default {
             fontFamily: {
                 sans: ['Figtree', ...defaultTheme.fontFamily.sans],
             },
+            colors:{
+                customBlack: '#28282E',
+                gradientStart: '#262334',
+                gradientMid1: '#382239',
+                gradientMid2: '#412846',
+                gradientEnd: '#2E365D',
+            }
         },
     },
 

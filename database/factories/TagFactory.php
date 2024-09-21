@@ -21,7 +21,7 @@ class TagFactory extends Factory
     {
         return [
 
-            'name' => $this->faker->word(),
+            'name' => '#' . $this->faker->word(),
 
         ];
     }

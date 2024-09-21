@@ -24,6 +24,13 @@ class ProfileController extends Controller
         ]);
     }
 
+
+    public function show()
+    {
+        $user = auth()->user()->load('profile');
+        return response()->json($user->profile);
+    }
+
     /**
      * Update the user's profile information.
      */

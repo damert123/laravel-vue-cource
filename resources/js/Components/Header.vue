@@ -3,6 +3,8 @@
 
 import {Link} from "@inertiajs/vue3";
 import ApplicationLogo from "@/Components/ApplicationLogo.vue";
+
+
 export default {
     name: "Header",
 
@@ -11,18 +13,75 @@ export default {
         ApplicationLogo
     },
 
+    data(){
+      return {
+         profile: this.$page.props.profile || null,
+      }
+    },
+
+    computed:{
+        user(){
+            return this.$page.props.auth.user
+        }
+    },
+
+    mounted() {
+        if (!this.profile) {
+            this.fetchProfile();
+        }
+    },
+
     props:{
         showHeader:{
             type: Boolean,
             default: true
-        }
-    }
+        },
+
+    },
+
+
+    methods:{
+            fetchProfile() {
+                axios.get(route('user.profile'))
+                    .then(res =>{
+                        this.profile = res.data;
+                    })
+                    .catch(err =>{
+                        console.log(err);
+                    })
+
+            },
+
+            handleLogout(){
+             this.$inertia.post('/logout', {}, {
+                 onFinish: () => {
+                     this.profile = null;
+                 }
+             })
+            }
+        },
+
+        // handleLogout(){
+        //     this.$inertia.post('/logout', {}, {
+        //         onFinish: () => {
+        //             localStorage.removeItem('userProfile'); // Удаляем профиль из localStorage
+        //         }
+        //     });
+        // }
+
+        // logout() {
+        //     // Здесь выполняем запрос на выход
+        //     axios.post('/logout').then(res => {
+        //         localStorage.removeItem('userProfile'); // Удаляем профиль из localStorage
+        //
+        //     });
+        // }
 
 }
 </script>
 
 <template>
-<header v-if="showHeader" class="bg-gray-800 text-white py-2 mb-12">
+<header v-if="showHeader" class="bg-customBlack text-white py-2 mb-12">
 
     <div class="flex justify-around">
 
@@ -38,10 +97,12 @@ export default {
         </nav>
 
         <div class="flex items-center space-x-4">
-            <span class="font-semibold">Username</span>
-            <Link href="/logout" method="post" as="button" class="bg-red-500 px-3 py-1 rounded hover:bg-red-700 transition-all duration-100 ease-in">
+            <span class="font-semibold">{{ profile ? profile.login : ''  }}</span>
+            <button @click="handleLogout" href="/logout" method="post" as="button" class="bg-red-500 px-3 py-1 rounded hover:bg-red-700 transition-all duration-100 ease-in">
                 Logout
-            </Link>
+            </button>
+
+
         </div>
 
 

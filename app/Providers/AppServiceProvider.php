@@ -25,6 +25,6 @@ class AppServiceProvider extends ServiceProvider
     {
 //        Vite::prefetch(concurrency: 3);
         Model::unguard();
-        User::observe(UserObserver::class);
+//        User::observe(UserObserver::class);
     }
 }

@@ -14,6 +14,7 @@ export default {
         categories: Array,
         posts: Array,
         videos: Array,
+        roles: Array,
     },
 
     data(){
@@ -28,7 +29,9 @@ export default {
               commentable_type: '',
               commentable_id: null,
           },
-          user:{},
+          user:{
+              role_id: null
+          },
           successMessage: '',
           errorMessage: '',
       };
@@ -42,7 +45,7 @@ export default {
             return !this.post.title || !this.post.content || !this.post.category_id;
         },
         isUserButtonDisabled() {
-            return !this.user.name || !this.user.email || !this.user.password;
+            return !this.user.name || !this.user.email || !this.user.password || !this.user.login || !this.user.role_id;
         }
     },
 
@@ -51,9 +54,15 @@ export default {
             this.isPopupVisible = true;
             this.popupType = type;
             this.errorMessage = '';
-            this.post = {}
-            this.comment = {}
-            this.user = {}
+            this.post = {category_id: null}
+            this.comment = {
+                commentable_type: '',
+                commentable_id: null,
+                }
+            this.user = {
+                role_id: null
+            }
+            this.commentableType = ''
             // if (type === 'Comment') {
             //     this.commentableType = '';
             //     this.comment = {
@@ -95,8 +104,10 @@ export default {
                     this.comment = {
                         commentable_id: null,
                         commentable_type: '',
+
                     };
-                    this.isPopupVisible = false
+                    this.isPopupVisible = false;
+                    this.commentableType = ''
                 })
                 .catch(e => {
                    this.errorMessage = e.response.data.message;
@@ -110,7 +121,9 @@ export default {
                     setTimeout(() => {
                         this.successMessage = '';
                     }, 3000);
-                    this.user = {};
+                    this.user = {
+                        role_id: null
+                    };
                     this.isPopupVisible = false;
                 })
                 .catch(e => {
@@ -243,6 +256,19 @@ export default {
              <!-- Поле для ввода пароля -->
              <div class="mb-4">
                  <input v-model="user.password" type="password" placeholder="Пароль" class="w-full p-2 rounded-md bg-gray-800 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+             </div>
+
+             <!-- Поле для ввода логина -->
+             <div class="mb-4">
+                 <input v-model="user.login" type="text" placeholder="Логин" class="w-full p-2 rounded-md bg-gray-800 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+             </div>
+
+             <!-- Селект для ролей -->
+             <div class="mb-4">
+                 <select v-model="user.role_id" class="w-full p-2 rounded-md bg-gray-800 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                     <option :value="null" disabled>Выберите роль (необязательно)</option>
+                     <option v-for="role in roles" :key="role.id" :value="role.id">{{ role.title }}</option>
+                 </select>
              </div>
 
              <!-- Кнопка для добавления пользователя -->

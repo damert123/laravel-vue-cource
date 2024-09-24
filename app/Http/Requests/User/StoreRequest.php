@@ -17,8 +17,10 @@ class StoreRequest extends FormRequest
     {
         return [
             'email' => 'required|email|unique:users,email',
-            'password' => 'required|min:8',
-            'name' => 'required|min:3|max:50',
+            'password' => 'required|string|min:8',
+            'name' => 'required|string|min:3|max:50',
+            'login' => 'required|string|min:3|max:50|unique:profiles,login|regex:/^[a-zA-Z0-9_-]+$/',
+            'role_id' => 'required|integer|exists:roles,id',
         ];
     }
 
@@ -33,6 +35,11 @@ class StoreRequest extends FormRequest
             'name.required' => 'Имя обязательно.',
             'name.min' => 'Имя должно быть не менее 3 символов.',
             'name.max' => 'Имя должно быть не более 50 символов.',
+            'login.required' => 'Заполните логин',
+            'login.unique' => 'Такой логин уже занят',
+            'login.min' => 'Логин должен быть минимум 3 символа',
+            'login.max' => 'Логин привышает 50 символов',
+            'login.regex' => 'Логин разрешает только латинские буквы'
         ];
 
     }

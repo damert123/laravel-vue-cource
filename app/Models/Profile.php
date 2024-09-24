@@ -34,10 +34,10 @@ class Profile extends Model
         return $this->hasManyThrough(Category::class, Post::class);
     }
 
-    public function profileable()
-    {
-        return $this->morphTo('profileable');
-    }
+//    public function profileable()
+//    {
+//        return $this->morphTo('profileable');
+//    }
 
     public function likedPosts()
     {

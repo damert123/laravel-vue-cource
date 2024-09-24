@@ -50,7 +50,7 @@ class User extends Authenticatable implements JWTSubject
 
     public function profile()
     {
-        return $this->morphOne(Profile::class, 'profileable');
+        return $this->hasOne(Profile::class, 'user_id');
     }
 
     public function comments()

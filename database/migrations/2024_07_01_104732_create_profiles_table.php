@@ -19,9 +19,9 @@ return new class extends Migration
             $table->string('city')->nullable();
             $table->string('about')->nullable();
             $table->string('avatar_path')->nullable();
-            $table->string('login')->nullable();
-            $table->morphs('profileable');
-            //  $table->foreignId('user_id')->index()->constrained('users');
+            $table->string('login');
+//            $table->morphs('profileable');
+            $table->foreignId('user_id')->index()->constrained('users');
             $table->softDeletes();
             $table->timestamps();
         });

@@ -25,6 +25,8 @@ class UserController extends Controller
 
         $user = UserService::create($data);
 
+
+
         return response()->json([
             'message' => 'Пользователь успешно создан',
         ], 201);

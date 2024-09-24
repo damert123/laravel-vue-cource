@@ -34,12 +34,14 @@ class CommentController extends Controller
      */
     public function store(StoreRequest $request)
     {
-        $data = $request->validated();
-
+        $data = $request->validationData();
 
         $comment = CommentService::create($data);
 
-        return new CommentResource($comment);
+//        return new CommentResource($comment);
+        return response()->json([
+            'message' => 'Комментарий успешно создан!',
+        ], 201);
     }
 
     /**

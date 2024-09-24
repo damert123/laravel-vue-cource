@@ -42,14 +42,17 @@ export default {
 
     methods:{
             fetchProfile() {
-                axios.get(route('user.profile'))
-                    .then(res =>{
-                        this.profile = res.data;
-                    })
-                    .catch(err =>{
-                        console.log(err);
-                    })
-
+                if (this.user) { // Проверяем, есть ли пользователь
+                    axios.get(route('user.profile'))
+                        .then(res => {
+                            this.profile = res.data;
+                        })
+                        .catch(err => {
+                            console.error(err);
+                        });
+                } else {
+                    this.profile = null; // Если пользователь не авторизован, сбрасываем профиль
+                }
             },
 
             handleLogout(){
@@ -58,24 +61,14 @@ export default {
                      this.profile = null;
                  }
              })
+            },
+
+            handleLogin() {
+                this.$inertia.get('/login'); // Перенаправление на страницу логина
             }
         },
 
-        // handleLogout(){
-        //     this.$inertia.post('/logout', {}, {
-        //         onFinish: () => {
-        //             localStorage.removeItem('userProfile'); // Удаляем профиль из localStorage
-        //         }
-        //     });
-        // }
 
-        // logout() {
-        //     // Здесь выполняем запрос на выход
-        //     axios.post('/logout').then(res => {
-        //         localStorage.removeItem('userProfile'); // Удаляем профиль из localStorage
-        //
-        //     });
-        // }
 
 }
 </script>
@@ -94,11 +87,15 @@ export default {
         <nav class="flex space-x-4 items-center">
             <Link :href="route('main.index')" class="text-lg relative border-b-2 border-transparent hover:border-red-500 transition-all duration-100 ease-in">HOME</Link>
             <Link :href="route('admin.posts.index')" class="text-lg relative border-b-2 border-transparent hover:border-red-500 transition-all duration-100 ease-in">POSTS</Link>
+            <Link :href="route('admin.index')" class="text-lg relative border-b-2 border-transparent hover:border-red-500 transition-all duration-100 ease-in">ADMIN</Link>
         </nav>
 
         <div class="flex items-center space-x-4">
             <span class="font-semibold">{{ profile ? profile.login : ''  }}</span>
-            <button @click="handleLogout" href="/logout" method="post" as="button" class="bg-red-500 px-3 py-1 rounded hover:bg-red-700 transition-all duration-100 ease-in">
+            <button v-if="!user" @click="handleLogin" class="bg-blue-500 px-3 py-1 rounded hover:bg-blue-700 transition-all duration-100 ease-in">
+                Войти
+            </button>
+            <button v-else @click="handleLogout" href="/logout" method="post" as="button" class="bg-red-500 px-3 py-1 rounded hover:bg-red-700 transition-all duration-100 ease-in">
                 Logout
             </button>
 

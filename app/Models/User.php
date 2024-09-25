@@ -89,6 +89,12 @@ class User extends Authenticatable implements JWTSubject
         return [];
     }
 
+    public function login()
+    {
+        return $this->profile ? $this->profile->login : null;
+    }
+
+
 
     public function roles()
     {

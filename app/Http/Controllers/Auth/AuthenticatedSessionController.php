@@ -35,9 +35,7 @@ class AuthenticatedSessionController extends Controller
 
         $user = auth()->user();
 
-        $profile = $user->profile;
-
-        return redirect()->intended(route('main.index', absolute: false))->with('profile', $profile);
+        return redirect()->intended(route('dashboard', absolute: false));
     }
 
     /**

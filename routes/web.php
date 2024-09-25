@@ -24,19 +24,11 @@ Route::get('/', [MainController::class, 'index'])->name('main.index');
 
 
 
-Route::get('/user/profile', [ProfileController::class, 'show'])->middleware('auth')->name('user.profile');
-
-Route::group(['prefix' => 'admin', 'middleware' => ['auth', IsAdminMiddleware::class]], function () {
-    Route::get('/posts', [PostController::class, 'index'])->name('admin.posts.index');
-    Route::get('/posts/{post}/comments', [PostController::class, 'commentList'])->name('admin.posts.comments.index');
-    Route::get('/', [AdminController::class, 'index'])->name('admin.index');
-    Route::post('/posts', [PostController::class, 'store'])->name('admin.posts.store');
-    Route::post('/comment', [CommentController::class, 'store'])->name('admin.comment.store');
-    Route::post('/users', [UserController::class, 'store'])->name('admin.users.store');
+Route::get('/profiles/main', [ProfileController::class, 'main'])->middleware('auth')->name('dashboard');
 
 
-});
 
 
 
 require __DIR__.'/auth.php';
+require __DIR__.'/admin.php';

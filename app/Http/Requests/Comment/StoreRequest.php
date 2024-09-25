@@ -21,6 +21,8 @@ class StoreRequest extends FormRequest
         return [
             'title' => 'required|string|max:255',
             'parent_id' => 'nullable|integer|exists:comments,id',
+//            'commentable_type' => 'required|string|in:video,post',
+//            'commentable_id' => 'required|integer|exists:comments,id',
         ];
     }
 

@@ -20,7 +20,7 @@ class PostResource extends JsonResource
             'content' => $this->content,
             'username' => $this->profile['login'],
             'profile_id' => $this->profile_id,
-            'category_id' => $this->category['title'],
+            'category_id' => CategoryResource::make($this->category)->resolve(),
             'image_path' => $this->image_path,
             'date' => $this->created_at->diffForHumans(),
             'status' => $this->status,

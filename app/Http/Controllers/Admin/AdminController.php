@@ -18,7 +18,7 @@ class AdminController extends Controller
     public function index()
     {
         $categories = CategoryResource::collection(Category::all())->resolve();
-        $posts = PostResource::collection(Post::all())->resolve();
+        $posts = PostResource::collection(Post::latest()->get())->resolve();
         $videos = VideoSelectResource::collection(Video::all())->resolve();
         $roles = RoleResource::collection(Role::all())->resolve();
         return inertia('Admin/Index', compact('categories', 'posts', 'videos', 'roles'));

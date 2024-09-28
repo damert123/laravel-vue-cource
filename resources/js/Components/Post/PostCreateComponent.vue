@@ -27,6 +27,9 @@ export default {
     methods:{
         storePost(){
             this.$emit('store-post', this.post);
+        },
+        setImage(e){
+           this.post.image = e.target.files[0]
         }
     }
 
@@ -51,6 +54,20 @@ export default {
         <div class="mb-4">
             <textarea v-model="post.content" placeholder="Описание" class="w-full p-2 rounded-md bg-gray-800 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500"></textarea>
         </div>
+
+        <div class="mb-4">
+            <input v-model="post.published_at" ref="datetimeInput" @focus="$refs.datetimeInput.showPicker()" type="datetime-local" placeholder="Дата публикации" class="w-full p-2 rounded-md bg-gray-800 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+        </div>
+
+        <div class="mb-4">
+            <input
+                @change="setImage"
+                type="file"
+                accept="image/*"
+                class="w-full p-2 rounded-md bg-gray-800 text-white border border-gray-600  placeholder-gray-400  focus:outline-none focus:ring-2 focus:ring-emerald-500"
+            />
+        </div>
+
         <div class="mb-4">
             <select v-model="post.category_id" class="w-full p-2 rounded-md bg-gray-800 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500">
                 <option :value="null" hidden="hidden" disabled>Выберите категорию</option>

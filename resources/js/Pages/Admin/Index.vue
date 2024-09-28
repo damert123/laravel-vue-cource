@@ -7,6 +7,7 @@ import CommentCreateComponent from "@/Components/Comment/CommentCreateComponent.
 import UserCreateComponent from "@/Components/User/UserCreateComponent.vue";
 import PostAdminIndexComponent from "@/Components/Admin/Post/PostAdminIndexComponent.vue";
 import SlideTransitionComponent from "@/Components/Transition/SlideTransitionComponent.vue";
+import {Link} from "@inertiajs/vue3";
 
 export default {
     name: "Index",
@@ -19,7 +20,10 @@ export default {
         UserCreateComponent,
         PostAdminIndexComponent,
         SlideTransitionComponent,
+        Link
     },
+
+    emits: ['open-popup'],
 
     props:{
         categories: Array,
@@ -30,6 +34,7 @@ export default {
 
     data(){
       return {
+          localPosts: [],
           isPostMenuOpen: false,
           isUserMenuOpen: false,
           isPopupVisible: false,
@@ -38,11 +43,22 @@ export default {
           successMessage: '',
           errorMessage: '',
           selectedPost: null,
+          selectedPostId: null,
       };
     },
 
 
     methods:{
+        fetchPosts() {
+            axios.get(route('admin.posts.index'))
+                .then(res => {
+                    this.localPosts = res.data; // Обновляем локальное состояние
+                })
+                .catch(e => {
+                    console.error('Ошибка при загрузке постов:', e);
+                });
+        },
+
         togglePostMenu(){
           this.isPostMenuOpen = !this.isPostMenuOpen;
         },
@@ -71,9 +87,14 @@ export default {
         },
 
         storePost(postData){
-            axios.post(route('admin.posts.store'), postData)
+            axios.post(route('admin.posts.store'), postData, {
+                headers: {
+                    'content-type': 'multipart/form-data'
+                }
+            })
                 .then(res => {
                     this.successMessage = res.data.message;
+                    this.localPosts.unshift(res.data.post);
                     setTimeout(() => {
                         this.successMessage = '';
                     }, 3000)
@@ -122,10 +143,43 @@ export default {
                 });
         },
 
+        handleDeletePost(postId) {
+            this.selectedPostId = postId;
+            this.togglePopup('Delete');
+        },
 
+        deletePost(postId){
+            axios.delete(route('admin.posts.destroy', postId))
+                .then(res=>{
+                    this.successMessage = res.data.message;
+                    this.localPosts = this.localPosts.filter(post => post.id !== postId); // Обновляем локальное состояние
+                    setTimeout(() => {
+                        this.successMessage = '';
+                    }, 3000);
+                    this.isPopupVisible = false;
+                    this.removePost(postId);
+                })
+                .catch(e => {
+                    this.errorMessage = e.response?.data?.message || 'Произошла ошибка при удалении';
 
+                });
+        },
 
     },
+
+    mounted() {
+        this.localPosts = this.posts; // Инициализируем локальное состояние данными из пропса
+    },
+
+    // watch: {
+    //     posts: {
+    //         immediate: true,
+    //         handler(newPosts) {
+    //             this.localPosts = newPosts; // Обновляем локальное состояние при изменении пропса
+    //         }
+    //     }
+    // }
+
 
 
 
@@ -145,7 +199,7 @@ export default {
  <div>
 
      <!-- POPUP Окно -->
-     <Popup :isVisible="isPopupVisible"  @close="isPopupVisible = false">
+     <Popup :isVisible="isPopupVisible" :hideCloseButton="popupType === 'Delete'"  @close="isPopupVisible = false">
 
          <template v-if="popupType === 'Post'">
              <PostCreateComponent :categories="categories" :errorMessage="errorMessage" @store-post="storePost" />
@@ -159,13 +213,30 @@ export default {
              <UserCreateComponent :roles="roles" :errorMessage="errorMessage" @store-user="storeUser"/>
          </template>
 
+         <template v-if="popupType === 'Delete'">
 
+                 <h2 class="text-xl font-semibold text-white mb-4">Удалить пост?</h2>
+                 <p class="text-gray-300 mb-6">Вы уверены, что хотите удалить этот пост? Это действие не может быть отменено.</p>
+
+                 <div class="flex justify-end space-x-4">
+                     <!-- Кнопка отмены -->
+                     <button @click="isPopupVisible = false" class="px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600 transition">
+                         Отмена
+                     </button>
+
+                     <!-- Кнопка удаления -->
+                     <button @click="deletePost(selectedPostId)" class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition">
+                         Удалить
+                     </button>
+                 </div>
+
+         </template>
      </Popup>
 
  </div>
 
 
-    <div class="flex h-screen text-white w-4/5 mx-auto mt-12 rounded-lg">
+    <div class="flex h-auto text-white w-4/5 mx-auto mt-12 rounded-lg">
         <!-- Боковое меню -->
         <div class="w-64 bg-black p-4 rounded-l-xl bg-opacity-30">
             <h2 class="text-xl mb-4">Админка</h2>
@@ -218,18 +289,18 @@ export default {
                     <a>Пользователя</a>
                 </div>
             </div>
-            <PostAdminIndexComponent :posts="posts" @post-selected="handlePostSelect"/>
 
+                <PostAdminIndexComponent :posts="localPosts" @open-popup="togglePopup" @open-delete-popup="handleDeletePost" @post-selected="handlePostSelect"/>
         </div>
 
-        <SlideTransitionComponent >
+        <SlideTransitionComponent>
             <div v-if="selectedPost" class="flex-grow w-1/3 p-4 bg-customBlack rounded-r-xl border-l-2 border-gray-600">
                 <h2 class="text-white text-lg font-bold">Редактировать пост</h2>
 
                 <div class="mt-4">
 
                     <div class="my-4">
-                        <img :src="selectedPost?.image_path" alt="Post Image" class="mb-2" />
+                        <img v-if="selectedPost.image_path" :src="selectedPost?.image_path" alt="Post Image" class="mb-2" />
                         <div class="flex mt-4 items-center justify-between">
                             <span class="text-sm text-gray-400">От: {{ selectedPost?.username }}</span>
                             <span class="text-sm text-gray-400">Выложено: {{ selectedPost?.date }}</span>

@@ -17,10 +17,6 @@ export default {
     },
 
     methods:{
-
-
-
-
         getComments(post) {
             if (!this.comments[post.id]) {
                 axios.get(`posts/${post.id}/comments`)
@@ -56,7 +52,7 @@ export default {
 
                 <!-- Категория поста -->
                 <div class="inline-block mb-4 px-3 py-1 bg-gray-300 text-white text-sm font-semibold rounded-full">
-                    {{ post.category_id }}
+                    {{ post.category_id.title }}
                 </div>
 
                 <!-- Заголовок поста -->

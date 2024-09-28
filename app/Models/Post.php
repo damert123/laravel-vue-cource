@@ -10,12 +10,13 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Storage;
 
 
 class Post extends Model
 {
     use HasFactory;
-    use SoftDeletes;
+//    use SoftDeletes;
     use HasLogsEventToFile;
     use HasFilter;
 
@@ -47,6 +48,11 @@ class Post extends Model
     public function likedByProfiles()
     {
         return $this->belongsToMany(Profile::class, 'profile_post_like', 'post_id', 'profile_id');
+    }
+
+    public function getImageUrlAttribute():string
+    {
+        return Storage::disk('public')->url($this->image_path);
     }
 
 

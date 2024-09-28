@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Exceptions\CustomException;
 use App\Models\Post;
+use Illuminate\Support\Facades\Storage;
 
 class PostService
 {
@@ -12,6 +13,9 @@ class PostService
 
     public static function create(array $data): Post
     {
+
+        unset($data['image']);
+
         return Post::create($data);
     }
 
@@ -23,6 +27,10 @@ class PostService
 
     public static function delete(Post $post): void
     {
+        if ($post->image_path){
+            Storage::disk('public')->delete($post->image_path);
+        }
+
         $post->delete();
 
     }

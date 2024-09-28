@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources\Post;
 
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -21,8 +22,8 @@ class PostResource extends JsonResource
             'username' => $this->profile['login'],
             'profile_id' => $this->profile_id,
             'category_id' => CategoryResource::make($this->category)->resolve(),
-            'image_path' => $this->image_path,
-            'date' => $this->created_at->diffForHumans(),
+            'image_path' => $this->imageUrl,
+            'date' => Carbon::parse($this->published_at)->diffForHumans(),
             'status' => $this->status,
             'views' => $this->views,
             'like_count' => $this->likeable->count(),

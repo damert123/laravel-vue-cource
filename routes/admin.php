@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Route;
 Route::group(['prefix' => 'admin', 'middleware' => ['auth', IsAdminMiddleware::class]], function () {
     Route::get('/posts', [PostController::class, 'index'])->name('admin.posts.index');
     Route::get('/posts/{post}/comments', [PostController::class, 'commentList'])->name('admin.posts.comments.index');
+    Route::delete('/posts/{post}', [PostController::class, 'destroy'])->name('admin.posts.destroy');
     Route::get('/posts/{post}', [PostController::class, 'show'])->name('admin.posts.show');
     Route::get('/', [AdminController::class, 'index'])->name('admin.index');
     Route::post('/posts', [PostController::class, 'store'])->name('admin.posts.store');

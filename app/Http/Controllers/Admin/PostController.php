@@ -14,7 +14,7 @@ class PostController extends Controller
 {
     public function index()
     {
-        $posts = Post::with('profile.user')->get();
+        $posts = Post::with('profile.user')->latest()->get();
 
         $posts = PostResource::collection($posts)->resolve();
 
@@ -23,11 +23,13 @@ class PostController extends Controller
 
     public function store(StoreRequest $request)
     {
+
         $data = $request->validationData();
         $post = PostService::create($data);
 //        return PostResource::make($post)->resolve();
         return response()->json([
             'message' => 'Пост успешно создан!',
+            'post' => new PostResource($post)
         ], 201);
     }
 
@@ -37,5 +39,14 @@ class PostController extends Controller
         $comments = $post->comments()->latest()->get();
 
         return CommentResource::collection($comments);
+    }
+
+    public function destroy(Post $post)
+    {
+        PostService::delete($post);
+
+        return response()->json([
+            'message' => 'Пост успешно удален'
+        ]);
     }
 }

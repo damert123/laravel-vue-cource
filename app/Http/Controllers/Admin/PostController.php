@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\Post\StoreRequest;
+use App\Http\Requests\Api\Post\IndexRequest;
 use App\Http\Resources\Post\CommentResource;
 use App\Http\Resources\Post\PostResource;
 use App\Models\Post;
@@ -12,11 +13,19 @@ use Illuminate\Http\Request;
 
 class PostController extends Controller
 {
-    public function index()
+    public function index(IndexRequest $request)
     {
-        $posts = Post::with('profile.user')->latest()->get();
+        $data = $request->validationData();
+//        $posts = Post::with('profile.user')->latest()->get();
 
-        $posts = PostResource::collection($posts)->resolve();
+        $posts = PostResource::collection(Post::filter($data)->latest()->paginate($data['per_page'], ['*'], 'page', $data['page'] ));
+
+        if ($request->wantsJson()){
+            return $posts;
+        }
+
+
+//        $posts = PostResource::collection($posts)->resolve();
 
         return inertia('Admin/Post/Index', compact('posts'));
     }

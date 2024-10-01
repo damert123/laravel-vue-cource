@@ -16,6 +16,8 @@ class IndexRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'page' => 'nullable|integer',
+            'per_page' => 'nullable|integer',
             'title' => 'nullable|string',
             'content' => 'nullable|string',
             'published_at_from' => 'nullable|date_format:Y-m-d',
@@ -24,6 +26,16 @@ class IndexRequest extends FormRequest
             'category_title' => 'nullable|string',
 
         ];
+    }
+
+    protected function passedValidation()
+    {
+
+        return $this->merge([
+            'page' => $this->page ?? 1,
+            'per_page' => $this->per_page ?? 3,
+        ]);
+
     }
 }
 

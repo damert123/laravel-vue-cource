@@ -12,16 +12,12 @@ export default {
     },
 
     props: {
-        posts:{
-            type: Array,
-            required: true
-        }
+        posts: {}
 
     },
 
     data() {
         return {
-
             selectedPost: null,
         };
     },
@@ -48,7 +44,7 @@ export default {
 <template>
     <div class="post-list space-y-4">
         <div
-            v-for="post in posts"
+            v-for="post in posts.data"
             :key="post.id"
             class="post-item p-4 border border-gray-600 rounded-lg bg-gray-800 hover:bg-gray-700 transition-all duration-200"
             @click="selectPost(post)"
@@ -94,6 +90,8 @@ export default {
             </div>
         </div>
     </div>
+
+
 </template>
 
 <style scoped>

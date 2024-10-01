@@ -27,14 +27,15 @@ export default {
 
     props:{
         categories: Array,
-        posts: Array,
+        posts: Object,
         videos: Array,
         roles: Array,
     },
 
     data(){
       return {
-          localPosts: [],
+          postsData: this.posts,
+          filter: {},
           isPostMenuOpen: false,
           isUserMenuOpen: false,
           isPopupVisible: false,
@@ -44,20 +45,14 @@ export default {
           errorMessage: '',
           selectedPost: null,
           selectedPostId: null,
+          isPageChange: false
+
       };
     },
 
 
     methods:{
-        fetchPosts() {
-            axios.get(route('admin.posts.index'))
-                .then(res => {
-                    this.localPosts = res.data; // Обновляем локальное состояние
-                })
-                .catch(e => {
-                    console.error('Ошибка при загрузке постов:', e);
-                });
-        },
+
 
         togglePostMenu(){
           this.isPostMenuOpen = !this.isPostMenuOpen;
@@ -94,7 +89,7 @@ export default {
             })
                 .then(res => {
                     this.successMessage = res.data.message;
-                    this.localPosts.unshift(res.data.post);
+                    this.postsData.data.unshift(res.data.post);
                     setTimeout(() => {
                         this.successMessage = '';
                     }, 3000)
@@ -152,12 +147,11 @@ export default {
             axios.delete(route('admin.posts.destroy', postId))
                 .then(res=>{
                     this.successMessage = res.data.message;
-                    this.localPosts = this.localPosts.filter(post => post.id !== postId); // Обновляем локальное состояние
+                    this.postsData = this.postsData.filter(post => post.id !== postId); // Обновляем локальное состояние
                     setTimeout(() => {
                         this.successMessage = '';
                     }, 3000);
                     this.isPopupVisible = false;
-                    this.removePost(postId);
                 })
                 .catch(e => {
                     this.errorMessage = e.response?.data?.message || 'Произошла ошибка при удалении';
@@ -165,20 +159,44 @@ export default {
                 });
         },
 
+        getPosts(page){
+            if (page !== null) {
+                this.isPageChange = true;
+            }
+
+            this.filter.page = page !== null ? page : 1;
+            axios.get(route('admin.posts.index'), {
+                params: this.filter
+            })
+                .then(res =>{
+                    this.postsData = res.data
+                    console.log(this.postsData);
+
+                })
+        },
+
+        resetFilters(){
+            this.filter = {};
+            this.getPosts(null);
+        },
+
     },
 
     mounted() {
-        this.localPosts = this.posts; // Инициализируем локальное состояние данными из пропса
+        this.postsData = this.posts;// Инициализируем локальное состояние данными из пропса
     },
 
-    // watch: {
-    //     posts: {
-    //         immediate: true,
-    //         handler(newPosts) {
-    //             this.localPosts = newPosts; // Обновляем локальное состояние при изменении пропса
-    //         }
-    //     }
-    // }
+    watch: {
+           filter:{
+               handler(){
+                   if(!this.isPageChange){
+                       this.getPosts(1);
+                   }
+                   this.isPageChange = false
+               },
+               deep: true
+           },
+    }
 
 
 
@@ -290,7 +308,73 @@ export default {
                 </div>
             </div>
 
-                <PostAdminIndexComponent :posts="localPosts" @open-popup="togglePopup" @open-delete-popup="handleDeletePost" @post-selected="handlePostSelect"/>
+            <div class="border-b-2 border-gray-600 mb-4"></div>
+
+            <div class="space-y-4 mb-4">
+                <!-- Первый инпут для поиска по тексту 1 -->
+
+                <div class="flex justify-between">
+                    <div class="flex w-1/2 items-center rounded-lg p-2 ">
+                        <svg class="w-5 h-5 text-gray-400 mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                            <circle cx="10" cy="10" r="7" stroke="currentColor" stroke-width="2" fill="none" />
+                            <line x1="15" y1="15" x2="23" y2="23" stroke="currentColor" stroke-width="2" />
+                        </svg>
+                        <input type="text" placeholder="Поиск" v-model="filter.title" class=" bg-gray-800  rounded-xl text-white placeholder-gray-400 focus:outline-none w-full" />
+                    </div>
+
+                    <!-- Второй инпут для поиска по категориям -->
+                    <div class="flex items-center rounded-lg p-2">
+                        <input type="text" placeholder="Категория" v-model="filter.category_title" class="bg-gray-800 rounded-xl text-white placeholder-gray-400 focus:outline-none w-full" />
+                    </div>
+
+                    <div class="flex w-1/4 items-center rounded-lg p-2">
+                        <input type="date" v-model="filter.published_at_from" class="bg-gray-800 text-white rounded-xl focus:outline-none w-full" />
+                    </div>
+
+                    <div>
+                        <a @click.prevent="resetFilters" href="#">Сброс</a>
+                    </div>
+                </div>
+
+
+                <!-- Инпут для даты -->
+
+            </div>
+
+
+            <PostAdminIndexComponent :posts="postsData" @open-popup="togglePopup" @open-delete-popup="handleDeletePost" @post-selected="handlePostSelect"/>
+
+                <div class="flex justify-center space-x-4 mt-5">
+                    <div>
+                        <a v-if="postsData.meta.current_page !== 1"
+                           class="py-2 px-4 border border-gray-600 rounded-lg bg-gray-800 text-white hover:bg-gray-700 transition-all duration-200"
+                           @click.prevent="getPosts(postsData.meta.current_page - 1)">
+                            <
+                        </a>
+                    </div>
+
+                    <div v-for="link in postsData.meta.links" :key="link.label">
+                        <template v-if="Number(link.label)">
+                            <a :class="{
+                                    'py-2 px-4 border border-gray-600 rounded-lg bg-gray-800 text-white hover:bg-gray-700 transition-all duration-200': !link.active,
+                                    'py-2 px-4 border border-gray-500 rounded-lg bg-gray-500 text-white': link.active
+                                }"
+                               @click.prevent="getPosts(link.label)"
+                               v-html="link.label">
+                            </a>
+                        </template>
+                    </div>
+
+                    <div>
+                        <a  v-if="postsData.meta.current_page !== postsData.meta.last_page"
+                            class="py-2 px-4 border border-gray-600 rounded-lg bg-gray-800 text-white hover:bg-gray-700 transition-all duration-200"
+                            @click.prevent="getPosts(postsData.meta.current_page + 1)">
+                            >
+                        </a>
+                    </div>
+                </div>
+
+
         </div>
 
         <SlideTransitionComponent>

@@ -46,7 +46,7 @@ export default {
 
 <template>
 
-    <div v-for="post in posts" class="mb-8 pb-4">
+    <div v-for="post in posts.data" class="mb-8 pb-4">
         <div class="max-w-2xl mx-auto bg-customBlack rounded-xl shadow-md overflow-hidden">
             <div class="p-6">
 

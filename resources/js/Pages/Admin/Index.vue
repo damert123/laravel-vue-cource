@@ -147,7 +147,7 @@ export default {
             axios.delete(route('admin.posts.destroy', postId))
                 .then(res=>{
                     this.successMessage = res.data.message;
-                    this.postsData = this.postsData.filter(post => post.id !== postId); // Обновляем локальное состояние
+                    this.postsData.data = this.postsData.filter(post => post.id !== postId); // Обновляем локальное состояние
                     setTimeout(() => {
                         this.successMessage = '';
                     }, 3000);
@@ -159,19 +159,16 @@ export default {
                 });
         },
 
-        getPosts(page){
-            if (page !== null) {
-                this.isPageChange = true;
-            }
+        getPosts(){
 
-            this.filter.page = page !== null ? page : 1;
+            const query = new URLSearchParams(this.filter).toString();
+            window.history.pushState({}, '', `?${query}`);
+
             axios.get(route('admin.posts.index'), {
                 params: this.filter
             })
                 .then(res =>{
                     this.postsData = res.data
-                    console.log(this.postsData);
-
                 })
         },
 
@@ -180,22 +177,37 @@ export default {
             this.getPosts(null);
         },
 
+        debounceGetPosts() {
+            clearTimeout(this.debounceTimeout);
+            this.debounceTimeout = setTimeout(() => {
+                this.getPosts();
+            }, 300);
+        },
+
     },
 
     mounted() {
-        this.postsData = this.posts;// Инициализируем локальное состояние данными из пропса
+        this.postsData = this.posts;
+        if (this.postsData.meta.current_page){
+            this.filter.page = this.postsData.meta.current_page
+        }
     },
 
     watch: {
            filter:{
                handler(){
                    if(!this.isPageChange){
-                       this.getPosts(1);
+                       this.filter.page = 1;
                    }
+                   this.debounceGetPosts();
                    this.isPageChange = false
                },
                deep: true
            },
+        'filter.page': function (){
+               this.isPageChange = true
+               this.getPosts();
+        }
     }
 
 
@@ -344,32 +356,36 @@ export default {
 
             <PostAdminIndexComponent :posts="postsData" @open-popup="togglePopup" @open-delete-popup="handleDeletePost" @post-selected="handlePostSelect"/>
 
-                <div class="flex justify-center space-x-4 mt-5">
+                <div class="flex justify-center items-center  space-x-4 mt-5">
                     <div>
                         <a v-if="postsData.meta.current_page !== 1"
                            class="py-2 px-4 border border-gray-600 rounded-lg bg-gray-800 text-white hover:bg-gray-700 transition-all duration-200"
-                           @click.prevent="getPosts(postsData.meta.current_page - 1)">
-                            <
+                           @click.prevent="filter.page = filter.page - 1">
+                            &lt;
                         </a>
                     </div>
 
-                    <div v-for="link in postsData.meta.links" :key="link.label">
-                        <template v-if="Number(link.label)">
+                    <template v-for="link in postsData.meta.links" :key="link.label" >
+                        <template v-if="Number(link.label) &&
+                        (postsData.meta.current_page - link.label < 2 &&
+                         postsData.meta.current_page - link.label > -2) ||
+                         Number(link.label) === 1 || Number(link.label) === postsData.meta.last_page">
                             <a :class="{
                                     'py-2 px-4 border border-gray-600 rounded-lg bg-gray-800 text-white hover:bg-gray-700 transition-all duration-200': !link.active,
                                     'py-2 px-4 border border-gray-500 rounded-lg bg-gray-500 text-white': link.active
                                 }"
-                               @click.prevent="getPosts(link.label)"
-                               v-html="link.label">
+                               @click.prevent="filter.page = link.label"
+                               v-html="link.label"
+                            >
                             </a>
                         </template>
-                    </div>
+                    </template>
 
                     <div>
                         <a  v-if="postsData.meta.current_page !== postsData.meta.last_page"
                             class="py-2 px-4 border border-gray-600 rounded-lg bg-gray-800 text-white hover:bg-gray-700 transition-all duration-200"
-                            @click.prevent="getPosts(postsData.meta.current_page + 1)">
-                            >
+                            @click.prevent="filter.page = filter.page + 1">
+                            &gt;
                         </a>
                     </div>
                 </div>
@@ -384,7 +400,8 @@ export default {
                 <div class="mt-4">
 
                     <div class="my-4">
-                        <img v-if="selectedPost.image_path" :src="selectedPost?.image_path" alt="Post Image" class="mb-2" />
+                        <img v-if="selectedPost.image_path" :src="selectedPost?.image_path" alt="Post Image" class="border mb-2 w-3/4 h-3/4 m-auto rounded-xl" />
+                        <div v-if="!selectedPost.image_path" class="text-center font-semibold text-slate-500 p-3 border rounded-xl ">НЕТ ИЗОБРАЖЕНИЯ</div>
                         <div class="flex mt-4 items-center justify-between">
                             <span class="text-sm text-gray-400">От: {{ selectedPost?.username }}</span>
                             <span class="text-sm text-gray-400">Выложено: {{ selectedPost?.date }}</span>

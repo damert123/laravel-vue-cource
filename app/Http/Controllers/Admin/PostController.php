@@ -18,7 +18,7 @@ class PostController extends Controller
         $data = $request->validationData();
 //        $posts = Post::with('profile.user')->latest()->get();
 
-        $posts = PostResource::collection(Post::filter($data)->latest()->paginate($data['per_page'], ['*'], 'page', $data['page'] ));
+        $posts = PostResource::collection(Post::filter($data)->latest()->paginate($data['per_page'], ['*'], 'page', $data['page'] )->withQueryString());
 
         if ($request->wantsJson()){
             return $posts;

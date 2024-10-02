@@ -14,8 +14,8 @@
 - **Request** - ✅
 - **Validation** - ✅
 - **Command** - ✅
-- **Pagination** - ⏳
-- **Filtering (+pagination)** - ⏳
+- **Pagination** - ✅
+- **Filtering (+pagination)** - ✅
 - **Mapper** - ⏳
 
 ### Отношения
@@ -43,7 +43,7 @@
 - **Laravel Breeze** - ⏳
 - **Restful Route** - ✅
 - **Middleware** - ✅
-- **Config** - ⏳
+- **Config** - ✅
 - **Cache** - ⏳
 - **Policy** - ⏳
 - **Roles** - ✅
@@ -53,8 +53,8 @@
 - **JWT token** - ✅
 - **Filter Template** - ✅
 - **Mail** - ⏳
-- **HTTP client** - ⏳
-- **Storage** - ⏳
+- **HTTP client** - ✅
+- **Storage** - ✅
 - **Logging** - ✅
 - **Exceptions** - ✅
 
@@ -62,18 +62,18 @@
 
 ### Основные темы
 
-- **Vue** - ⏳
+- **Vue** - ✅
 - **Hooks** - ⏳
-- **Data** - ⏳
-- **Methods** - ⏳
+- **Data** - ✅
+- **Methods** - ✅
 - **Computed** - ⏳
-- **Watch** - ⏳
-- **Refs** - ⏳
-- **Components** - ⏳
-- **Props** - ⏳
-- **Emits** - ⏳
-- **CRUD** - ⏳
-- **Modal** - ⏳
-- **Inertia** - ⏳
-- **Axios** - ⏳
+- **Watch** - ✅
+- **Refs** - ✅
+- **Components** - ✅
+- **Props** - ✅
+- **Emits** - ✅
+- **CRUD** - ✅
+- **Modal** - ✅
+- **Inertia** - ✅
+- **Axios** - ✅
 - **Auth** - ⏳

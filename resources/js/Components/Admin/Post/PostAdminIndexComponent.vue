@@ -85,7 +85,7 @@ export default {
                 </div>
                 <div class="flex items-center space-x-2">
                     <ViewIcon class="w-5"/>
-                    <span>{{ post.views }}</span>
+                    <span>{{ post.views !== null ? post.views : '0' }}</span>
                 </div>
             </div>
         </div>

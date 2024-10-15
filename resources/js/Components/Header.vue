@@ -58,13 +58,13 @@ export default {
 
 
         <nav class="flex space-x-4 items-center">
-            <Link :href="route('dashboard')" class="text-lg relative border-b-2 border-transparent hover:border-red-500 transition-all duration-100 ease-in">HOME</Link>
+            <Link :href="route('main.index')" class="text-lg relative border-b-2 border-transparent hover:border-red-500 transition-all duration-100 ease-in">HOME</Link>
             <Link :href="route('admin.posts.index')" class="text-lg relative border-b-2 border-transparent hover:border-red-500 transition-all duration-100 ease-in">POSTS</Link>
             <Link :href="route('admin.index')" class="text-lg relative border-b-2 border-transparent hover:border-red-500 transition-all duration-100 ease-in">ADMIN</Link>
         </nav>
 
         <div class="flex items-center space-x-4">
-            <Link v-if="login" :href="route('main.index')" class="font-semibold">{{ login }}</Link>
+            <Link v-if="login" :href="route('profile.index')" class="font-semibold">{{ login }}</Link>
             <button v-if="!user" @click="handleLogin" class="bg-blue-500 px-3 py-1 rounded hover:bg-blue-700 transition-all duration-100 ease-in">
                 Войти
             </button>

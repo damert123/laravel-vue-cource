@@ -14,6 +14,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', IsAdminMiddleware::c
     Route::get('/posts/{post}', [PostController::class, 'show'])->name('admin.posts.show');
     Route::get('/', [AdminController::class, 'index'])->name('admin.index');
     Route::post('/posts', [PostController::class, 'store'])->name('admin.posts.store');
+    Route::patch('/posts/{post}', [PostController::class, 'update'])->name('admin.posts.update');
     Route::post('/comment', [CommentController::class, 'store'])->name('admin.comment.store');
     Route::post('/users', [UserController::class, 'store'])->name('admin.users.store');
 

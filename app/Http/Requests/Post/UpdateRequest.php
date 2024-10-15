@@ -2,11 +2,30 @@
 
 namespace App\Http\Requests\Post;
 
+use App\Models\Post;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Storage;
 
 class UpdateRequest extends FormRequest
 {
 
+    protected function prepareForValidation()
+    {
+
+        if ($this->hasFile('post.image')){
+
+            $this->merge([
+                'post' => [
+                    ...$this->input('post'),
+                    'image_path' => $this->file('post.image')->store('images', 'public')
+                ]
+
+            ]);
+        }
+
+
+
+    }
 
     /**
      * Get the validation rules that apply to the request.
@@ -15,16 +34,24 @@ class UpdateRequest extends FormRequest
      */
     public function rules(): array
     {
+
         return [
-            'title' => 'required|string',
-            'content' => 'nullable|string',
-            'published_at' => 'nullable|date_format:Y-m-d',
-            'profile_id' => 'required|integer',
-            'category_id' => 'required|integer',
-            'image_path' => 'nullable|string',
-            'status' => 'nullable|integer',
-            'views' => 'nullable|integer',
+
+            'post.title' => 'required|string|min:10|max:100',
+            'post.content' => 'required|string|max:255',
+            'post.category_id' => 'required|integer|exists:categories,id',
+            'post.image' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            'post.published_at' => [
+                'required',
+                'date',
+                'before_or_equal:today',
+                'after_or_equal:' . now()->subMonths(6)->toDateString(),
+            ],
+            'tags' => 'nullable|string',
+
+
         ];
+
     }
 
     public function messages()
@@ -34,4 +61,6 @@ class UpdateRequest extends FormRequest
         ];
 
     }
+
+
 }

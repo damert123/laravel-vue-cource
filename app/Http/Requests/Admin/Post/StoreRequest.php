@@ -13,13 +13,22 @@ class StoreRequest extends FormRequest
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
      */
 
+
     protected function prepareForValidation()
     {
-        if ($this->hasFile('image')){
-            $this->merge([
-                'image_path' => $this->file('image')->store('images', 'public')
+
+        if ($this->hasFile('post.image')){
+
+             $this->merge([
+                'post' => [
+                    ...$this->input('post'),
+                    'image_path' => $this->file('post.image')->store('images', 'public')
+                ]
+
             ]);
         }
+
+
     }
 
 
@@ -27,21 +36,27 @@ class StoreRequest extends FormRequest
     public function rules(): array
     {
 
+
         return [
-            'title' => 'required|string|min:10|max:100',
-            'content' => 'required|string|max:255',
-            'category_id' => 'required|integer|exists:categories,id',
-            'published_at' => [
+            'post.title' => 'required|string|min:10|max:100',
+            'post.content' => 'required|string|max:255',
+            'post.category_id' => 'required|integer|exists:categories,id',
+            'post.published_at' => [
                 'required',
                 'date',
                 'before_or_equal:today',
                 'after_or_equal:' . now()->subMonths(6)->toDateString(),
             ],
-            'image' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            'post.image' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            'tags' => 'nullable|string',
 
         ];
 
     }
+
+
+
+
 
 
 
@@ -72,14 +87,18 @@ class StoreRequest extends FormRequest
     protected function passedValidation()
     {
 
+        $postData = $this->validated()['post'];
+
+        if ($this->has('post.image_path')) {
+            $postData['image_path'] = $this->input('post.image_path');
+        }
+
         $this->merge([
-            'profile_id' => auth()->user()->profile->id
+            'post' => [
+                ...$postData,
+                'profile_id' => auth()->user()->profile->id,
+            ],
         ]);
-
-
-
-
-
 
     }
 }

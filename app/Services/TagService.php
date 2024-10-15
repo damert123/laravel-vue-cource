@@ -14,6 +14,19 @@ class TagService
         return Tag::create($data);
     }
 
+    public static function getTagIds(string $tags): array
+    {
+        $tagIds = [];
+
+        foreach (getArrayFromString($tags) as $tagTitle) {
+
+            $tagIds[] = Tag::firstOrCreate(['name' => $tagTitle])->id;
+        }
+
+
+        return $tagIds;
+    }
+
     public static function update(Tag $tag, array $data): Tag
     {
         $tag->update($data);

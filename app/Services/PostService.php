@@ -4,32 +4,83 @@ namespace App\Services;
 
 use App\Exceptions\CustomException;
 use App\Models\Post;
+use App\Models\Tag;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Mockery\Exception;
 
 class PostService
 {
-
-
-
-    public static function create(array $data): Post
+    public static function create(array $data): ?Post
     {
 
-        unset($data['image']);
 
-        return Post::create($data);
+        if (isset($data['post']['image'])) {
+            unset($data['post']['image']);
+        }
+
+
+        try {
+            DB::beginTransaction();
+            $post = Post::create($data['post']);
+
+            if (!empty($data['tags'])) {
+                $tagIds = TagService::getTagIds($data['tags']);
+                $post->tags()->attach($tagIds);
+            }
+            DB::commit();
+
+            return $post;
+
+
+        } catch (\Exception $exception) {
+            DB::rollBack();
+
+            throw new \Exception('Не удалось создать пост', $exception->getCode(), $exception);
+        }
+
+
     }
 
     public static function update(Post $post, array $data): Post
     {
-        $post->update($data);
-        return $post;
+        try {
+            DB::beginTransaction();
+
+
+            if (isset($data['post']['image']) && $post->image_path) {
+                Storage::disk('public')->delete($post->image_path);
+                unset($data['post']['image']);
+            }
+
+
+            $post->update($data['post']);
+
+            if (!empty($data['tags'])) {
+                $tagIds = TagService::getTagIds($data['tags']);
+                $post->tags()->sync($tagIds);
+            }
+            DB::commit();
+
+            return $post;
+
+
+        } catch (\Exception $exception) {
+            DB::rollBack();
+            throw new \Exception('Не удалось создать пост', $exception->getCode(), $exception);
+        }
+
     }
 
     public static function delete(Post $post): void
     {
-        if ($post->image_path){
+        if ($post->image_path) {
             Storage::disk('public')->delete($post->image_path);
         }
+
+        $post->tags()->detach();
+        $post->likeable()->detach();
+        $post->comments()->delete();
 
         $post->delete();
 

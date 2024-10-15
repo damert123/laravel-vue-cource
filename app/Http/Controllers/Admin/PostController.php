@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\Post\StoreRequest;
 use App\Http\Requests\Api\Post\IndexRequest;
+use App\Http\Requests\Post\UpdateRequest;
 use App\Http\Resources\Post\CommentResource;
 use App\Http\Resources\Post\PostResource;
 use App\Models\Post;
@@ -16,6 +17,7 @@ class PostController extends Controller
     public function index(IndexRequest $request)
     {
         $data = $request->validationData();
+
 //        $posts = Post::with('profile.user')->latest()->get();
 
         $posts = PostResource::collection(Post::filter($data)->latest()->paginate($data['per_page'], ['*'], 'page', $data['page'] )->withQueryString());
@@ -40,6 +42,19 @@ class PostController extends Controller
             'message' => 'Пост успешно создан!',
             'post' => new PostResource($post)
         ], 201);
+    }
+
+    public function update(Post $post, UpdateRequest $request)
+    {
+        $data = $request->validationData();
+
+        $post = PostService::update($post, $data);
+
+        return response()->json([
+            'selectedPost' => new PostResource($post),
+            'message' => 'Пост редактирован'
+        ]);
+
     }
 
 

@@ -45,7 +45,8 @@ export default {
           errorMessage: '',
           selectedPost: null,
           selectedPostId: null,
-          isPageChange: false
+          isPageChange: false,
+          newTags: ''
 
       };
     },
@@ -66,7 +67,7 @@ export default {
             this.isPopupVisible = true;
             this.popupType = type;
             this.errorMessage = '';
-            this.post = {category_id: null}
+            this.entries = { post: {category_id: null}, tags: ''};
             this.comment = {
                 commentable_type: '',
                 commentable_id: null,
@@ -79,6 +80,8 @@ export default {
 
         handlePostSelect(post) {
             this.selectedPost = post;
+            this.newTags = '';
+            this.$refs.inputImage ? this.$refs.inputImage.value = null : ''
         },
 
         storePost(postData){
@@ -93,7 +96,7 @@ export default {
                     setTimeout(() => {
                         this.successMessage = '';
                     }, 3000)
-                    this.post = { category_id: null}
+                    this.entries = { post: {category_id: null}, tags: ''}
                     this.isPopupVisible = false
 
                 })
@@ -147,7 +150,7 @@ export default {
             axios.delete(route('admin.posts.destroy', postId))
                 .then(res=>{
                     this.successMessage = res.data.message;
-                    this.postsData.data = this.postsData.filter(post => post.id !== postId); // Обновляем локальное состояние
+                    this.postsData.data = this.postsData.data.filter(post => post.id !== postId); // Обновляем локальное состояние
                     setTimeout(() => {
                         this.successMessage = '';
                     }, 3000);
@@ -155,12 +158,10 @@ export default {
                 })
                 .catch(e => {
                     this.errorMessage = e.response?.data?.message || 'Произошла ошибка при удалении';
-
                 });
         },
 
         getPosts(){
-
             const query = new URLSearchParams(this.filter).toString();
             window.history.pushState({}, '', `?${query}`);
 
@@ -183,6 +184,59 @@ export default {
                 this.getPosts();
             }, 300);
         },
+
+        setImage(event) {
+
+            const file = event.target.files[0];
+            if (file) {
+                this.selectedPost.image = file; // сохраняем файл в selectedPost
+            }
+
+
+        },
+
+        updatePost(selectedPost){
+            const existingTagNames = selectedPost.tags.map(tag => tag.name)
+            const newTagsArray = this.newTags.split(',').map(tag => tag.trim());
+            const combinedTags = [...existingTagNames, ...newTagsArray];
+            const formData = new FormData();
+            formData.append('post[title]', selectedPost.title);
+            formData.append('post[content]', selectedPost.content);
+            formData.append('post[category_id]', selectedPost.category_id.id);
+            formData.append('post[published_at]', selectedPost.published_at);
+            formData.append('_method', 'PATCH')
+
+
+            if (selectedPost.image) {
+                formData.append('post[image]', selectedPost.image);
+            }
+
+
+            formData.append('tags', combinedTags.join(', '));
+
+            axios.post(route('admin.posts.update', selectedPost.id), formData, {
+                headers: {
+                    "Content-Type": 'multipart/form-data'
+                }
+            })
+                .then( res => {
+                    this.successMessage = res.data.message
+                    this.selectedPost = res.data.selectedPost
+                    this.getPosts()
+                    this.errorMessage = ''
+                    this.$refs.inputImage.value = null
+                    setTimeout(() => {
+                        this.successMessage = '';
+                    }, 3000);
+                }).catch(e => {
+                this.errorMessage = e.response?.data?.message || 'Произошла ошибка при обновлении поста';
+            })
+        },
+        removeTag(index) {
+            this.selectedPost.tags.splice(index, 1);
+        }
+
+
 
     },
 
@@ -384,7 +438,7 @@ export default {
                     <div>
                         <a  v-if="postsData.meta.current_page !== postsData.meta.last_page"
                             class="py-2 px-4 border border-gray-600 rounded-lg bg-gray-800 text-white hover:bg-gray-700 transition-all duration-200"
-                            @click.prevent="filter.page = filter.page + 1">
+                            @click.prevent="filter.page = filter.page +=1 ">
                             &gt;
                         </a>
                     </div>
@@ -395,10 +449,16 @@ export default {
 
         <SlideTransitionComponent>
             <div v-if="selectedPost" class="flex-grow w-1/3 p-4 bg-customBlack rounded-r-xl border-l-2 border-gray-600">
-                <h2 class="text-white text-lg font-bold">Редактировать пост</h2>
+                <div class="flex justify-between items-center">
+                    <h2 class="text-white text-lg font-bold">Редактировать пост</h2>
+                    <a @click.prevent="updatePost(selectedPost)" href="#" class="p-2 rounded-md bg-green-600">Сохранить</a>
+                </div>
+                <div v-if="errorMessage" class="bg-red-600 text-white p-2 rounded mt-2">
+                    {{ errorMessage }}
+                </div>
+
 
                 <div class="mt-4">
-
                     <div class="my-4">
                         <img v-if="selectedPost.image_path" :src="selectedPost?.image_path" alt="Post Image" class="border mb-2 w-3/4 h-3/4 m-auto rounded-xl" />
                         <div v-if="!selectedPost.image_path" class="text-center font-semibold text-slate-500 p-3 border rounded-xl ">НЕТ ИЗОБРАЖЕНИЯ</div>
@@ -409,12 +469,27 @@ export default {
 
                     </div>
 
+                    <div class="mb-4">
+                        <input
+                            ref="inputImage"
+                            @change="setImage"
+                            type="file"
+                            accept="image/*"
+                            class="w-full p-2 rounded-md bg-gray-800 text-white border border-gray-600  placeholder-gray-400  focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                        />
+                    </div>
+
 
                     <label class="text-white">Заголовок</label>
                     <input type="text" v-model="selectedPost.title" class="w-full p-2 mb-2 bg-gray-800 text-white rounded" />
 
                     <label class="text-white">Контент</label>
                     <textarea v-model="selectedPost.content" class="w-full min-h-52 p-2 mb-2 bg-gray-800 text-white rounded"></textarea>
+
+
+                    <div class="mb-4">
+                        <input  v-model="selectedPost.published_at" ref="datetimeInput" @focus="$refs.datetimeInput.showPicker()" type="datetime-local" placeholder="Дата публикации" class="w-full p-2 rounded-md bg-gray-800 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500" />
+                    </div>
 
                     <label class="text-white">Категория</label>
                     <select v-model="selectedPost.category_id.id" class="w-full p-2 mb-2 bg-gray-800 text-white rounded">
@@ -424,14 +499,20 @@ export default {
                     </select>
 
 
-                    <label class="text-white">Теги</label>
+                    <label class="text-white">Добавить тег</label>
+                    <div class="mb-4">
+                        <textarea v-model="newTags"  placeholder="Теги" class="w-full p-2 rounded-md bg-gray-800 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500"></textarea>
+                    </div>
+                    <label class="text-white">Существующие теги</label>
                     <div class="flex flex-wrap gap-2 mt-2">
-            <span v-for="tag in selectedPost.tags" :key="tag.id" class="bg-gray-700 text-white px-2 py-1 rounded flex items-center">
+            <span v-for="(tag, index) in selectedPost.tags" :key="tag.id" class="bg-gray-700 text-white px-2 py-1 rounded flex items-center">
                 {{ tag.name }}
                 <!-- SVG иконка справа от тега -->
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-2" viewBox="0 0 20 20" fill="currentColor">
-                    <path d="M5 8l4 4 4-4H5z" />
+                <svg @click="removeTag(index)" class="w-5 ml-2" viewBox="0 0 50 50" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M25 3.125C12.8125 3.125 3.125 12.8125 3.125 25C3.125 37.1875 12.8125 46.875 25 46.875C37.1875 46.875 46.875 37.1875 46.875 25C46.875 12.8125 37.1875 3.125 25 3.125ZM25 43.75C14.6875 43.75 6.25 35.3125 6.25 25C6.25 14.6875 14.6875 6.25 25 6.25C35.3125 6.25 43.75 14.6875 43.75 25C43.75 35.3125 35.3125 43.75 25 43.75Z" fill="white"/>
+                <path d="M33.4375 35.9375L25 27.5L16.5625 35.9375L14.0625 33.4375L22.5 25L14.0625 16.5625L16.5625 14.0625L25 22.5L33.4375 14.0625L35.9375 16.5625L27.5 25L35.9375 33.4375L33.4375 35.9375Z" fill="white"/>
                 </svg>
+
             </span>
                     </div>
 

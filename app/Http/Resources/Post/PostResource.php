@@ -24,6 +24,7 @@ class PostResource extends JsonResource
             'category_id' => CategoryResource::make($this->category)->resolve(),
             'image_path' => $this->imageUrl,
             'date' => Carbon::parse($this->published_at)->diffForHumans(),
+            'published_at' => $this->published_at,
             'status' => $this->status,
             'views' => $this->views,
             'like_count' => $this->likeable->count(),

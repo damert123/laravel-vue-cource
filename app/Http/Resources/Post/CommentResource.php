@@ -14,12 +14,17 @@ class CommentResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+        $replayName = isset ($this->parent) ? $this->parent->profile->login : null;
         return [
             'id' => $this->id,
             'title' => $this->title,
-            'post_id' => $this->post_id,
+            'post_id' => $this->commentable_id,
             'username' => $this->profile['login'],
-            'created_at' => $this->created_at
+            'replyName' => $replayName,
+            'parent_id' => $this->parent_id,
+            'replies' => CommentResource::collection($this->replies),
+            'created_at' => $this->created_at->diffForHumans(),
+            'showReplies' => false
         ];
     }
 }

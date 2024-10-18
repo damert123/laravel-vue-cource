@@ -11,7 +11,7 @@ class MainController extends Controller
     public function index()
     {
 
-        $userPosts = PostResource::collection(Post::where('profile_id', auth()->user()->profile->id)->get())->resolve();
+        $userPosts = PostResource::collection(Post::where('profile_id', auth()->user()->profile->id)->latest()->get())->resolve();
 
         return inertia('Main/Index', [
             'userPosts' => $userPosts

@@ -11,17 +11,29 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Comment extends Model
 {
     use HasFactory;
-    use SoftDeletes;
     use HasFilter;
+
+
+
+
+    public function scopeParent($query)
+    {
+        return $query->whereNull('parent_id');
+    }
 
     public function profile()
     {
         return $this->belongsTo(Profile::class, 'profile_id', 'id');
     }
 
+    public function replies()
+    {
+        return $this->hasMany(Comment::class, 'parent_id');
+    }
+
     public function parent()
     {
-        return $this->belongsTo(Comment::class, 'parent_id', 'id');
+        return $this->belongsTo(Comment::class);
     }
 
     public function post()

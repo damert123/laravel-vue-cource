@@ -22,7 +22,9 @@ class CommentService
 
     public static function delete(Comment $comment): void
     {
-
+        if ($comment->replies()->exists()){
+            $comment->replies()->delete();
+        }
         $comment->delete();
 
     }

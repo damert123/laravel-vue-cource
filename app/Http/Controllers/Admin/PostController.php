@@ -5,10 +5,13 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\Post\StoreRequest;
 use App\Http\Requests\Api\Post\IndexRequest;
+use App\Http\Requests\Post\StoreCommentRequest;
 use App\Http\Requests\Post\UpdateRequest;
 use App\Http\Resources\Post\CommentResource;
 use App\Http\Resources\Post\PostResource;
+use App\Models\Comment;
 use App\Models\Post;
+use App\Services\CommentService;
 use App\Services\PostService;
 use Illuminate\Http\Request;
 
@@ -57,12 +60,30 @@ class PostController extends Controller
 
     }
 
-
     public function commentList(Post $post)
     {
-        $comments = $post->comments()->latest()->get();
+        $comments = $post->comments()->parent()->with('replies')->take(3)->get();
 
-        return CommentResource::collection($comments);
+        return CommentResource::collection($comments)->resolve();
+//        return response()->json($comments);
+    }
+
+    public function storeComment(Post $post, StoreCommentRequest $request)
+    {
+        $data = $request->validationData();
+        $comment = $post->comments()->create($data);
+        return CommentResource::make($comment)->resolve();
+    }
+
+    public function destroyComment(Post $post, Comment $comment)
+    {
+
+        if ($comment->commentable_id === $post->id){
+            CommentService::delete($comment);
+            return response()->json(['success' => 'Комменатрий удален']);
+        }else{
+            return response()->json(['message' => 'Комменатрий не принадлежит данному посту']);
+        }
     }
 
     public function destroy(Post $post)

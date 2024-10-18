@@ -29,8 +29,6 @@ class ProfileController extends Controller
         $profileUser = ProfileResource::make(Profile::where('user_id', auth()->id())->firstOrfail())->resolve();
 
 
-
-
         return inertia('Profile/Main', [
             'profile' => $profileUser,
 

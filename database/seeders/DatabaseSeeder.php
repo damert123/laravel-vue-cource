@@ -79,15 +79,15 @@ class DatabaseSeeder extends Seeder
 
 
         $this->call([
-            RoleSeeder::class,
-            PermissionSedder::class,
-            CategorySeeder::class,
-            TagSeeder::class,
-            UserSeeder::class,
-            VideoSeeder::class,
-            PostSeeder::class,
-            CommentSeeder::class,
-            LikeablesTableSeeder::class
+//            RoleSeeder::class,
+//            PermissionSedder::class,
+//            CategorySeeder::class,
+//            TagSeeder::class,
+//            UserSeeder::class,
+//            VideoSeeder::class,
+//            PostSeeder::class,
+//            CommentSeeder::class,
+//            LikeablesTableSeeder::class
         ]);
 
     }

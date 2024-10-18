@@ -17,7 +17,7 @@ return new class extends Migration
             //$table->foreignId('post_id')->index()->constrained('posts')->onDelete('cascade');
             $table->foreignId('profile_id')->index()->constrained('profiles');
             $table->morphs('commentable');
-            $table->string('parent_id')->nullable();
+            $table->foreignId('parent_id')->nullable()->constrained('comments');
             $table->softDeletes();
             $table->timestamps();
         });

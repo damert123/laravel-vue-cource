@@ -4,7 +4,9 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\Profile\IndexRequest;
+use App\Http\Resources\Post\PostResource;
 use App\Http\Resources\User\ProfileResource;
+use App\Models\Post;
 use App\Models\Profile;
 use Illuminate\Http\Request;
 
@@ -21,6 +23,19 @@ class ProfileController extends Controller
         return ProfileResource::collection($profiles)->resolve();
     }
 
+    public function indexProfile(){
+
+
+        $profileUser = ProfileResource::make(Profile::where('user_id', auth()->id())->firstOrfail())->resolve();
+
+
+        return inertia('Profile/Main', [
+            'profile' => $profileUser,
+
+        ]);
+
+    }
+
     /**
      * Store a newly created resource in storage.
      */
@@ -32,9 +47,11 @@ class ProfileController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(Profile $profile)
     {
-        //
+
+
+
     }
 
     /**
